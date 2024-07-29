@@ -3,14 +3,17 @@ package com.codewithdurgesh.blog.blog_app_apis.controllers;
 import com.codewithdurgesh.blog.blog_app_apis.payloads.ApiResponse;
 import com.codewithdurgesh.blog.blog_app_apis.payloads.UserDto;
 import com.codewithdurgesh.blog.blog_app_apis.services.UserService;
+
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-
+@Validated
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -28,11 +31,11 @@ public class UserController {
         return new ResponseEntity<>(this.userService.getAllUsers(),HttpStatus.OK);
     }
     @PostMapping("/createUser")
-    public  ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto){
+    public  ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto){
         return new ResponseEntity<>(this.userService.createUser(userDto),HttpStatus.CREATED);
     }
     @PutMapping("/updateUser/{id}")
-    public  ResponseEntity<UserDto> updateUser(@PathVariable Integer id,@RequestBody UserDto userDto){
+    public  ResponseEntity<UserDto> updateUser(@Valid @PathVariable Integer id,@RequestBody UserDto userDto){
         return new ResponseEntity<>(this.userService.updateUser(userDto,id),HttpStatus.OK);
 
     }
