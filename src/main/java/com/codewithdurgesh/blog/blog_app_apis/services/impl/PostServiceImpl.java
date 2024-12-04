@@ -6,6 +6,7 @@ import com.codewithdurgesh.blog.blog_app_apis.entities.User;
 import com.codewithdurgesh.blog.blog_app_apis.exceptions.ResourceNotFoundException;
 import com.codewithdurgesh.blog.blog_app_apis.payloads.CategoryDto;
 import com.codewithdurgesh.blog.blog_app_apis.payloads.PostDto;
+import com.codewithdurgesh.blog.blog_app_apis.payloads.PostResponse;
 import com.codewithdurgesh.blog.blog_app_apis.payloads.UserDto;
 import com.codewithdurgesh.blog.blog_app_apis.repositories.CategoryRepo;
 import com.codewithdurgesh.blog.blog_app_apis.repositories.PostRepository;
@@ -13,6 +14,10 @@ import com.codewithdurgesh.blog.blog_app_apis.repositories.UserRepo;
 import com.codewithdurgesh.blog.blog_app_apis.services.PostService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -84,15 +89,36 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostDto> getAllPost() {
-        List<Post> posts = this.postRepository.findAll();
+    public PostResponse getAllPost(Integer pageNumber, Integer pageSize, String sortBy,String sortDir) {
+//        List<Post> posts = this.postRepository.findAll();
+        Sort sort=null;
+        if(sortDir.equalsIgnoreCase("asc")){
+            sort = Sort.by(sortBy).ascending();
+        }else if(sortDir.equalsIgnoreCase("desc")) {
+            sort=Sort.by(sortBy).descending();
+        }
+        else{
+            sort = Sort.by(sortBy).ascending();
+        }
+
+        Pageable p= PageRequest.of(pageNumber,pageSize, sort);
+        Page<Post> pagePost = this.postRepository.findAll(p);
+        List<Post> posts = pagePost.getContent();
+
         List<PostDto> postDtos = posts.stream().map(post -> {
             PostDto postDto = this.modelMapper.map(post, PostDto.class);
             postDto.setUserDto(this.modelMapper.map(post.getUser(), UserDto.class));
             postDto.setCategoryDto(this.modelMapper.map(post.getCategory(), CategoryDto.class));
             return postDto;
         }).collect(Collectors.toList());
-        return postDtos;
+        PostResponse postResponse = new PostResponse();
+        postResponse.setContent(postDtos);
+        postResponse.setPageSize(pagePost.getSize());
+        postResponse.setPageNumber(pagePost.getNumber());
+        postResponse.setTotalElement(pagePost.getTotalElements());
+        postResponse.setTotalPages(pagePost.getTotalPages());
+        postResponse.setLastPage(pagePost.isLast());
+        return postResponse;
 
     }
 
@@ -126,6 +152,13 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostDto> searchPostByKeyword(String keyword) {
-        return null;
+        List<Post> posts = this.postRepository.findByTitleContaining(keyword);
+        List<PostDto> postDtos = posts.stream().map(post -> {
+            PostDto postDto = this.modelMapper.map(post, PostDto.class);
+            postDto.setCategoryDto(this.modelMapper.map(post.getCategory(),CategoryDto.class));
+            postDto.setUserDto(this.modelMapper.map(post.getUser(),UserDto.class));
+            return postDto;
+        }).collect(Collectors.toList());
+        return postDtos;
     }
 }
