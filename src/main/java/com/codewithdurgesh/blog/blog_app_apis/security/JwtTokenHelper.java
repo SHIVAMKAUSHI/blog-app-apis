@@ -4,9 +4,11 @@ package com.codewithdurgesh.blog.blog_app_apis.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+//import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +18,7 @@ import java.util.function.Function;
 public class JwtTokenHelper {
     public static final long JWT_TOKEN_VALIDITY = 5*60*60;
     private String secret ="jwtTokenKey";
+//    private final Key key = Keys.hmacShaKeyFor(secret.getBytes());
 
     public String getUsernameFromToken(String token){
         return getClaimFromToken(token, Claims::getSubject);
@@ -32,6 +35,8 @@ public class JwtTokenHelper {
     }
     private Claims getAllClaimsFromToken(String token){
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+
+
 
     }
     private Boolean isTokenExpired(String token){

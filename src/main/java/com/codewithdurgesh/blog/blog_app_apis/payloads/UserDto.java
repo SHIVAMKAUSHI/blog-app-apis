@@ -1,5 +1,7 @@
 package com.codewithdurgesh.blog.blog_app_apis.payloads;
 
+import com.codewithdurgesh.blog.blog_app_apis.entities.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -8,6 +10,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -25,6 +30,8 @@ public class UserDto {
     private String password;
     @NotEmpty
     private String about;
+    @NotEmpty
+    private Set<Role> roles=new HashSet<>();
 
 
 }

@@ -11,6 +11,7 @@ public class CommentDto {
 
     private Integer commentId;
     private String comment;
+    private User user;
 
 
 }
